@@ -28,10 +28,10 @@ class MyFrame(tk.Frame):
         # 時間選択コンボボックス
         self.times = {'5秒':5, '10秒':10, '15秒':15, '20秒':20} # 仮の初期値
         self.var_time = tk.StringVar()
-        self.cmb_time = ttk.Combobox(master, justify=tk.CENTER
+        self.cmb_time = ttk.Combobox(master, justify=tk.CENTER				# エントリー部分を中央揃いに
                                     , textvariable=self.var_time
                                     , values=list(self.times.keys()))
-        self.cmb_time.option_add('*TCombobox*Listbox.Justify', 'center')
+        self.cmb_time.option_add('*TCombobox*Listbox.Justify', 'center')	# リストボックス部分を中央揃いに
         self.cmb_time.pack()
         self.cmb_time.set('5秒')
         # 開始ボタン
@@ -177,7 +177,7 @@ class MyControl():
         self.view.cmb_seqs.config(values=list(d.keys()))
         job = list(d.keys())[0]     # 先頭を取得
         self.view.cmb_seqs.set(job) # 先頭を選択状態に
-        self.set_jobs()             # ジョブをリストボックスに設定
+        self.set_jobs()             # ジョブをリストボックスに設定(setではイベントが発生しないため)
         # シンプルタイマーのデータをモデルからビューへ(同じキーがあると後のものが残る)
         # シンプルタイマーのタプルのリストを取得(「シンプルタイマー」キーの値)
         d = dict((k, v) for k, v in self.model.timer_json["シンプルタイマー"])
@@ -225,7 +225,7 @@ class MyControl():
         else:
             # 次のジョブを設定
             try:
-                que = self.que.popleft()                        # 次のシーケンスを取得
+                que = self.que.popleft()                        # 次のジョブを取得
                 # カウントダウン予約
                 self.after_id = self.view.after(1000, self.countdown, que[1])
                 self.view.lbl_explain["text"] = que[0]          # 説明を画面にセット

@@ -75,7 +75,7 @@
 ## プログラムの説明サイト Program description site
 
 - 使い方：[連続動作するタイマー【フリー】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/timer-exe)  
-- 【準備中】作り方：[連続動作するタイマーの作り方【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/timer)  
+- 作り方：[連続動作するタイマーの作り方【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/timer)  
   
 ## 作者 Authors
 juu7g
