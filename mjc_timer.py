@@ -1,5 +1,6 @@
 """
 複数ジョブ連続タイマー
+
 Multiple job continuous timer
 複数の時間設定
 時間の設定はダイアログでタブに秒単位、分単位で事前定義
@@ -35,7 +36,7 @@ class MyFrame(tk.Frame):
         self.cmb_time.pack()
         self.cmb_time.set('5秒')
         # 開始ボタン
-        self.btn_start = tk.Button(master, text='開始', command=lambda:self.my_ctr.countdown(self.times[self.var_time.get()]))
+        self.btn_start = tk.Button(master, text='開始', command=lambda:self.my_ctr.beep_and_countdown_start(self.times[self.var_time.get()]))
         self.btn_start.pack(fill=tk.X)
         # シーケンス選択コンボボックス
         self.var_seqs = tk.StringVar()
@@ -75,8 +76,9 @@ class MyFrame(tk.Frame):
     def set_my_ctr(self, my_ctr):
         """
         MyControlクラスの参照を設定
+
         Args:
-            MyControl:  MyControlオブジェクト
+            my_ctr(MyControl):  MyControlオブジェクト
         """
         self.my_ctr = my_ctr
         self.cmb_seqs.bind('<<ComboboxSelected>>', self.my_ctr.set_jobs)
@@ -84,18 +86,22 @@ class MyFrame(tk.Frame):
     def update_count(self, count:int):
         """
         残り時間の表示更新
+
         ウィジェット変数を使って更新するとぎくしゃくするので
         使わずに複数のウィジェットに値を設定して最後にupdate_idletasks()する
+
         Args:
-            int:    残り時間(秒)
+            count(int):    残り時間(秒)
         """
         m, s = divmod(count, 60)                    # 秒を分と秒に分ける
         if m == 0:  # 1分未満の場合
             self.lbl_rest['text'] = s
             self.lbl_counter.config(text='●'*s)
+            self.master.title(f"{s:02} カウントダウンタイマー") # タイトルの残り時間を更新
         else:
-            self.lbl_rest['text'] = f"{m}:{s}"
+            self.lbl_rest['text'] = f"{m}:{s:02}"
             self.lbl_counter.config(text='◎'*m)
+            self.master.title(f"{m}:{s:02} カウントダウンタイマー") # タイトルの残り時間を更新
         self.update_idletasks()
 
 class MyModel():
@@ -128,8 +134,9 @@ class MyModel():
     def to_sec(self, x) -> int:
         """
         文字で書かれた時間を秒に変更
+
         Args:
-            any:    時間(秒を示すint、秒、分秒を示す文字列)
+            x(any):    時間(秒を示すint、秒、分秒を示す文字列)
         Returns:
             int:    秒
         """
@@ -146,10 +153,12 @@ class MyModel():
     def str_to_sec(self, d:dict) -> dict:
         """
         辞書を編集して辞書で返す(json.load()のpbject_hook用)
+
         時間の値にある文字を秒に変更
         辞書の構成：{ジョブキー:[[表示, 時間],[]...]
+
         Args:
-            dict:   辞書
+            d (dict):   辞書
         Returns:
             dict:   変換後辞書
         """
@@ -165,9 +174,10 @@ class MyControl():
     def __init__(self, model:MyModel, view:MyFrame) -> None:
         """
         コンストラクタ
+
         Args:
-            MyModel:    モデルのオブジェクト
-            MyFrame:    ビューのオブジェクト
+            model(MyModel):    モデルのオブジェクト
+            view(MyFrame):    ビューのオブジェクト
         """
         self.model = model  # モデルオブジェクト
         self.view = view    # ビューオブジェクト
@@ -208,15 +218,16 @@ class MyControl():
         # シーケンスの1件目の設定
         self.view.lbx_jobs.select_set(0)        # リストボックスの選択
         que = self.que.popleft()                # キューからデータ取得
-        self.countdown(que[1])                  # カウントダウン開始
+        self.beep_and_countdown_start(que[1])   # カウントダウン開始
         self.view.lbl_explain["text"] = que[0]  # 説明を画面にセット
         logger.debug(f"シーケンス開始 {que[1]}")
 
     def countdown(self, count:int, event=None):
         """
         カウントダウン(1秒ごとに実行)次の実行をafter()メソッドで予約
+
         Args:
-            int:    残り時間
+            count(int):    残り時間
         """
         # afterは速やかに処理して遅れを最小限にする
         if count > 0:
@@ -258,12 +269,23 @@ class MyControl():
     def beep(self, count:int):
         """
         残り3秒になったら音を鳴らす
+
         Args:
-            int:    残り時間
+            count(int):    残り時間
         """
         if count > 3: return
         f_d = {False:(440, 500), True:(880, 1000)}  # 時報のような音(ラ、ラ、高いラ)
         ws.Beep(f_d[count == 0][0], f_d[count == 0][1])
+
+    def beep_and_countdown_start(self, count:int):
+        """
+        開始時に音を鳴らすしてからカウントダウンを開始
+
+        Args:
+            count(int):    残り時間
+        """
+        ws.Beep(936, 250)           # 活性の周波数
+        self.countdown(count)       # カウントダウン開始
 
 class App(tk.Tk):
     """
